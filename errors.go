@@ -117,6 +117,7 @@ const (
 	FinancialUnsupportedTransactionType    FinancialError = 9855 // Card does not support this type of transaction
 )
 
+// APIError represents an error returned by the LiqPay API.
 type APIError struct {
 	Status string `json:"status"`
 	Code   string `json:"err_code"`
@@ -127,6 +128,7 @@ func (e APIError) Error() string {
 	return fmt.Sprintf("status: %s, code: %s, description: %s", e.Status, e.Code, e.Desc)
 }
 
+// ConvertToAPIError converts an error to *APIError type if possible.
 func ConvertToAPIError(err error) (*APIError, error) {
 	apiErr, ok := err.(*APIError)
 	if !ok {
@@ -135,6 +137,8 @@ func ConvertToAPIError(err error) (*APIError, error) {
 	return apiErr, nil
 }
 
+// ErrorRefersToAPI checks if the error refers to an APIError.
+// It returns true if the error is of type *APIError, otherwise false.
 func ErrorRefersToAPI(err error) bool {
 	if _, ok := err.(*APIError); ok {
 		return true
