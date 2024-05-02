@@ -16,6 +16,7 @@ type Client interface {
 	CreateCheckout(req *CheckoutRequest) (string, error)
 
 	CreateSubscription(req *SubscriptionRequest) (string, error)
+	UpdateSubscription(req *EditSubscriptionRequest) (*SubscriptionResponse, error)
 	RemoveSubscription(orderID string) (*SubscriptionResponse, error)
 
 	CreateInvoice(req *InvoiceRequest) (*InvoiceResponse, error)
@@ -214,7 +215,7 @@ func (c client) sendServerRequest(req *http.Request, v any) error {
 	return nil
 }
 
-// CreateCheckout creates a new checkout link for the provided checkout request data.
+// CreateCheckout creates a new checkout link.
 func (c client) CreateCheckout(data *CheckoutRequest) (string, error) {
 	data.Action = ActionPay
 
@@ -231,7 +232,7 @@ func (c client) CreateCheckout(data *CheckoutRequest) (string, error) {
 	return link, nil
 }
 
-// CreateSubscription creates a new subscription link for the provided subscription request data.
+// CreateSubscription creates a new subscription link.
 func (c client) CreateSubscription(data *SubscriptionRequest) (string, error) {
 	data.Action = ActionSubscribe
 	data.Subscribe = "1"
@@ -249,7 +250,28 @@ func (c client) CreateSubscription(data *SubscriptionRequest) (string, error) {
 	return link, nil
 }
 
-// RemoveSubscription removes a subscription based on the provided order ID.
+// UpdateSubscription updates an existing subscription.
+func (c client) UpdateSubscription(data *EditSubscriptionRequest) (*SubscriptionResponse, error) {
+	data.Action = ActionSubscribeUpdate
+
+	req, err := c.prepareServerRequest(data)
+	if err != nil {
+		return nil, err
+	}
+
+	v := &SubscriptionResponse{}
+	err = c.sendServerRequest(req, v)
+	switch {
+	case err != nil && ErrorRefersToAPI(err):
+		return v, err
+	case err != nil:
+		return nil, err
+	}
+
+	return v, nil
+}
+
+// RemoveSubscription removes a subscription.
 func (c client) RemoveSubscription(orderID string) (*SubscriptionResponse, error) {
 	data := &UnsubscribeRequest{Action: ActionUnsubscribe, OrderID: orderID}
 
@@ -270,7 +292,7 @@ func (c client) RemoveSubscription(orderID string) (*SubscriptionResponse, error
 	return v, nil
 }
 
-// CreateInvoice creates a new invoice based on the provided invoice request data.
+// CreateInvoice creates a new invoice.
 func (c client) CreateInvoice(data *InvoiceRequest) (*InvoiceResponse, error) {
 	data.Action = ActionInvoiceSend
 
@@ -291,7 +313,7 @@ func (c client) CreateInvoice(data *InvoiceRequest) (*InvoiceResponse, error) {
 	return v, nil
 }
 
-// CancelInvoice cancels an invoice based on the provided order ID.
+// CancelInvoice cancels an invoice.
 func (c client) CancelInvoice(orderID string) (*CancelInvoiceResponse, error) {
 	data := &CancelInvoiceRequest{Action: ActionInvoiceCancel, OrderID: orderID}
 
@@ -312,7 +334,7 @@ func (c client) CancelInvoice(orderID string) (*CancelInvoiceResponse, error) {
 	return v, nil
 }
 
-// Status retrieves the status of an order based on the provided order ID.
+// Status retrieves the status of an order.
 func (c client) Status(orderID string) (*StatusResponse, error) {
 	data := &StatusRequest{Action: ActionStatus, OrderID: orderID}
 
@@ -333,7 +355,7 @@ func (c client) Status(orderID string) (*StatusResponse, error) {
 	return v, nil
 }
 
-// Refund processes a refund for an order based on the provided order ID and amount.
+// Refund processes a refund for an order.
 func (c client) Refund(orderID string, amount string) (*RefundResponse, error) {
 	data := &RefundRequest{Action: ActionRefund, OrderID: orderID, Amount: amount}
 

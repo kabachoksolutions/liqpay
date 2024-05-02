@@ -5,18 +5,19 @@ import "time"
 type Action string
 
 const (
-	ActionPay           Action = "pay"            // Default payment
-	ActionHold          Action = "hold"           // Amount of hold on sender's account
-	ActionSubscribe     Action = "subscribe"      // Create subscription
-	ActionUnsubscribe   Action = "unsubscribe"    // Unsubscribe
-	ActionStatus        Action = "status"         // Payment status
-	ActionPayDonate     Action = "paydonate"      // Donation
-	ActionPaySplit      Action = "paysplit"       // Splitting payments
-	ActionAuth          Action = "auth"           // Card preauth
-	ActionRegular       Action = "regular"        // Regular payment
-	ActionRefund        Action = "refund"         // Refund payment
-	ActionInvoiceSend   Action = "invoice_send"   // Send invoice
-	ActionInvoiceCancel Action = "invoice_cancel" // Cancel invoice
+	ActionPay             Action = "pay"              // Default payment
+	ActionHold            Action = "hold"             // Amount of hold on sender's account
+	ActionSubscribe       Action = "subscribe"        // Create subscription
+	ActionSubscribeUpdate Action = "subscribe_update" // Update subscription
+	ActionUnsubscribe     Action = "unsubscribe"      // Unsubscribe
+	ActionStatus          Action = "status"           // Payment status
+	ActionPayDonate       Action = "paydonate"        // Donation
+	ActionPaySplit        Action = "paysplit"         // Splitting payments
+	ActionAuth            Action = "auth"             // Card preauth
+	ActionRegular         Action = "regular"          // Regular payment
+	ActionRefund          Action = "refund"           // Refund payment
+	ActionInvoiceSend     Action = "invoice_send"     // Send invoice
+	ActionInvoiceCancel   Action = "invoice_cancel"   // Cancel invoice
 )
 
 type Currency string
@@ -225,6 +226,14 @@ type SubscriptionResponse struct {
 	Status             Status    `json:"status"`              // Payment status
 	TransactionID      int64     `json:"transaction_id"`      // Id transactions in the LiqPay system
 	Version            int       `json:"version"`             // Version API
+}
+
+type EditSubscriptionRequest struct {
+	Action      Action  `json:"action"`      // Action to be performed, in this case, 'subscribe_update'
+	Amount      float64 `json:"amount"`      // Payment amount. For example: 5, 7.34
+	Currency    string  `json:"currency"`    // Payment currency. Possible values: USD, EUR, UAH
+	Description string  `json:"description"` // Payment description
+	OrderID     string  `json:"order_id"`    // Unique purchase ID in your system
 }
 
 type UnsubscribeRequest struct {

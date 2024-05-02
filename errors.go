@@ -138,7 +138,6 @@ func ConvertToAPIError(err error) (*APIError, error) {
 }
 
 // ErrorRefersToAPI checks if the error refers to an APIError.
-// It returns true if the error is of type *APIError, otherwise false.
 func ErrorRefersToAPI(err error) bool {
 	if _, ok := err.(*APIError); ok {
 		return true
